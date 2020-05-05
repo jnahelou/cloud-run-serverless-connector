@@ -1,0 +1,17 @@
+server {
+  # Cloud Run will supply a $PORT env which we should listen on.
+  listen ${PORT};
+
+  # Set metadata server as resolver
+  resolver 169.254.169.254 valid=300s;
+  resolver_timeout 10s;
+
+  location ^~ /crawl {
+    location ~ "^/crawl/(.*)/(.*)" {
+        set $backend_svs https://$1/$2;
+        proxy_pass $backend_svs;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+  }
+}
+
